@@ -2,6 +2,17 @@ use std::env;
 use std::fs;
 use std::io::Write;
 
+extern crate fancy_regex;
+
+use fancy_regex::Regex;
+
+fn is_this_string_nice_too(string: &str) -> bool {
+    let contains_pair_of_two_letters_regex = Regex::new(r"([a-z][a-z]).*\1").unwrap();
+    let contains_two_letters_between_one_regex = Regex::new(r"([a-z])[a-z]\1").unwrap();
+
+    contains_pair_of_two_letters_regex.is_match(string).unwrap() && contains_two_letters_between_one_regex.is_match(string).unwrap()
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
@@ -14,9 +25,17 @@ fn main() {
         .expect("Cannot read file");
 
     let number_of_nice_strings = content.split('\n')
-        .filter(|string| is_this_string_nice(string))
+        .filter(|string| is_this_string_nice_too(string))
         .count();
-    println!("Number of nice strings in the input file: {}", number_of_nice_strings);
+    println!("Number of nice strings with the updated rules: {}", number_of_nice_strings);
+}
+
+#[test]
+fn test_two() {
+    assert_eq!(is_this_string_nice_too("qjhvhtzxzqqjkmpb"), true);
+    assert_eq!(is_this_string_nice_too("xxyxx"), true);
+    assert_eq!(is_this_string_nice_too("uurcxstgmygtbstg"), false);
+    assert_eq!(is_this_string_nice_too("ieodomkazucvgmuy"), false);
 }
 
 fn is_this_string_nice(string: &str) -> bool {
@@ -61,44 +80,6 @@ fn is_this_string_nice(string: &str) -> bool {
     contains_three_vowels && contains_duplicate_letter && !contains_forbidden_strings
 }
 
-fn is_this_string_nice_too(string: &str) -> bool {
-    // With the new rules, we need at least 4 letters.
-    if string.len() < 4 {
-        return false;
-    }
-
-    // Must be true to be a nice string
-    let mut contains_pair_of_two_letters = false;
-
-    // Must be true to be a nice string
-    let mut contains_letter_between_letters = false;
-
-    let mut buffer = vec![];
-    buffer.reserve(string.len() - 1);
-
-    println!("{}", string);
-    let mut chars = string.chars();
-    println!("{:?}", chars);
-
-    // for i in 1..string.len() - 2 {
-        //
-        // if chars.nth(i - 1).unwrap() == chars.nth(i + 1).unwrap() && chars.nth(i).unwrap() != chars.nth(i + 1).unwrap() {
-        //     contains_letter_between_letters = true;
-        // }
-        // if buffer.contains(&format!("{}{}", chars.nth(i).unwrap(), chars.nth(i + 1).unwrap())) {
-        //     contains_pair_of_two_letters = true;
-        // }
-        //
-        // if contains_letter_between_letters && contains_pair_of_two_letters {
-        //     break;
-        // }
-        // buffer.push(format!("{}{}", string[i], string[i + 1]));
-    // }
-
-
-    contains_pair_of_two_letters && contains_letter_between_letters
-}
-
 #[test]
 fn test() {
     assert_eq!(is_this_string_nice("ugknbfddgicrmopn"), true);
@@ -106,12 +87,4 @@ fn test() {
     assert_eq!(is_this_string_nice("jchzalrnumimnmhp"), false);
     assert_eq!(is_this_string_nice("haegwjzuvuyypxyu"), false);
     assert_eq!(is_this_string_nice("dvszwmarrgswjxmb"), false);
-}
-
-#[test]
-fn test_two() {
-    assert_eq!(is_this_string_nice_too("qjhvhtzxzqqjkmpb"), true);
-    assert_eq!(is_this_string_nice_too("xxyxx"), true);
-    assert_eq!(is_this_string_nice_too("uurcxstgmygtbstg"), false);
-    assert_eq!(is_this_string_nice_too("ieodomkazucvgmuy"), false);
 }
