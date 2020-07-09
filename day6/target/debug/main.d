@@ -1,1 +1,0 @@
-/home/lperreau/workspace/rust/advent-of-code-2015/day6/target/debug/main: /home/lperreau/workspace/rust/advent-of-code-2015/day6/src/bin/main.rs /home/lperreau/workspace/rust/advent-of-code-2015/day6/src/lib.rs
