@@ -12,9 +12,9 @@ fn main() {
     let content = fs::read_to_string(filename)
         .expect("Cannot read file");
 
-    let mut grid: HashMap<(i16, i16), bool> = HashMap::with_capacity(1000000);
+    let mut grid: HashMap<(i16, i16), u32> = HashMap::with_capacity(1000000);
 
     content.split('\n').for_each(|s| parse_instruction(&mut grid, s));
 
-    println!("Number of lights on: {}", grid.values().filter(|v| **v == true).count());
+    println!("Number of lights on: {}", grid.values().sum::<u32>());
 }

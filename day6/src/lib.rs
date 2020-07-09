@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
 
-pub fn parse_instruction(grid: &mut HashMap<(i16, i16), bool>, instruction: &str) {
+pub fn parse_instruction(grid: &mut HashMap<(i16, i16), u32>, instruction: &str) {
     if instruction.is_empty() {
         return;
     }
@@ -30,19 +30,24 @@ pub fn parse_instruction(grid: &mut HashMap<(i16, i16), bool>, instruction: &str
     }
 }
 
-fn turn_lights(grid: &mut HashMap<(i16, i16), bool>, state: bool, start_position: (i16, i16), end_position: (i16, i16)) {
+fn turn_lights(grid: &mut HashMap<(i16, i16), u32>, state: bool, start_position: (i16, i16), end_position: (i16, i16)) {
     for x in (start_position.0)..(end_position.0 + 1) {
         for y in (start_position.1)..(end_position.1 + 1) {
-            (*grid).insert((x, y), state);
+            let value = *grid.get_mut(&(x, y)).unwrap_or(&mut 0);
+            if state {
+                (*grid).insert((x, y), value + 1);
+            } else if value > 0 {
+                (*grid).insert((x, y), value - 1);
+            }
         }
     }
 }
 
-fn toggle_lights(grid: &mut HashMap<(i16, i16), bool>, start_position: (i16, i16), end_position: (i16, i16)) {
+fn toggle_lights(grid: &mut HashMap<(i16, i16), u32>, start_position: (i16, i16), end_position: (i16, i16)) {
     for x in (start_position.0)..(end_position.0 + 1) {
         for y in (start_position.1)..(end_position.1 + 1) {
-            let value = *grid.get_mut(&(x, y)).unwrap_or(&mut false);
-            (*grid).insert((x, y), !value);
+            let value = *grid.get_mut(&(x, y)).unwrap_or(&mut 0);
+            (*grid).insert((x, y), value + 2);
         }
     }
 }
@@ -61,11 +66,10 @@ fn str_to_tuple<T: FromStr>(string: &str, separator: char) -> Option<(T, T)> {
 
 #[test]
 fn test() {
-    let mut grid: HashMap<(i16, i16), bool> = HashMap::with_capacity(1000000);
-    parse_instruction(&mut grid, "turn on 0,0 through 999,999");
-    assert_eq!(grid.values().filter(|v| **v == true).count(), 1000000);
-    parse_instruction(&mut grid, "toggle 0,0 through 999,0");
-    assert_eq!(grid.values().filter(|v| **v == true).count(), 999000);
-    parse_instruction(&mut grid, "turn off 499,499 through 500,500");
-    assert_eq!(grid.values().filter(|v| **v == true).count(), 998996);
+    let mut grid: HashMap<(i16, i16), u32> = HashMap::new();
+    parse_instruction(&mut grid, "turn on 0,0 through 0,0");
+    assert_eq!(grid.values().sum::<u32>(), 1);
+    let mut grid: HashMap<(i16, i16), u32> = HashMap::with_capacity(1000000);
+    parse_instruction(&mut grid, "toggle 0,0 through 999,999");
+    assert_eq!(grid.values().sum::<u32>(), 2000000);
 }
