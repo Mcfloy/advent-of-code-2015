@@ -30,13 +30,3 @@ I struggled with the compiler because I couldn't use the main HashMap as mutable
 Now it's works like a charm because I respected the Rust borrow rules by taking care of cloning the reference counter BEFORE borrowing the map.
 
 The application is taking around ~45ms to get the wire's value.
-
-If we wanted to get faster, we could put direct values in the map when parsing the instructions if we already have their inputs:
-```
-123 -> x // Add it in the cache directly
-456 -> y // Same thing
-x AND y -> d // We know x and y, so we can insert d in the cache directly
-NOT e -> h // We don't know e, so we keep it in the main HashMap
-```
-
-At the end of the parsing, you would get maps: one with the inputs that wasn't known, one with the inputs known and calculated
